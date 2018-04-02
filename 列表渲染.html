@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <script src="https://cdn.jsdelivr.net/npm/vue@2.5.16/dist/vue.js"></script>
+    <title>列表渲染</title>
+</head>
+<body>
+    <div id="app">
+        <ul>
+            <li v-for="(item,index) in items">
+               {{ parentMessage}} - {{ index }} - {{ item.message }}
+            </li>
+        </ul>
+        <ul>
+            <li v-for="(value,key) of Object">
+                {{ key }} - {{ value }}
+            </li>
+        </ul>
+        <ul>
+            <li v-for="(value,key) of userProfile">
+                {{ key }} - {{ value }}
+            </li>
+        </ul>
+        <ul>
+            <li v-for="n in evenNumbers">{{ n }}</li>
+        </ul>
+        <!-- 为了减少耦合性，不降item传入组件做为组件的prop，只将需要迭代的数据传入组件，使用props -->
+        <div>
+            <input v-model="newTodoText" v-on:keyup.enter="addNewTodo" placeholder="Add a todo">
+            <ul>
+                <li is="todo-item" v-for="(todo,index) in todos" v-bind:key="todo.id" v-bind:title="todo.title"
+                    v-on:remove="todos.splice(index,1)"></li>
+            </ul>
+        </div>
+        <button @click="addItem">AddItem</button>
+        <button @click="addLength">AddLength</button>
+        <button @click="addUserProfile">addUserProfile</button>
+    </div>
+    <script>
+        Vue.component('todo-item',{
+            template : '<li>{{ title }} <button @click="$emit(\'remove\')">X</button></li>',
+            props: ['title'],
+        })
+        var vm = new Vue({
+            el : '#app',
+            data () {
+                return {
+                    newTodoText : '',
+                    newTodoId : 4,
+                    todos : [
+                        { id : 1,title : 'Do the dished'},
+                        { id : 2,title : 'Take out the trash'},
+                        { id : 3,title : 'Mow the lawn'},
+                    ],
+                    parentMessage : 'Parent',
+                    items : [
+                        { message : 'foo' },
+                        { message : 'bar' },
+                    ],
+                    Object : {
+                        firstName : 'John',
+                        lastName : 'Doe',
+                        age : 30,
+                    },
+                    userProfile : {
+                        username : 'Tom',
+                        age : 23,
+                        password : 'abcd',
+                    },
+                    number : [1,2,3,4,5,6,7,8,9],
+                }
+            },
+            methods : {
+                addItem : function(){
+                    Vue.set(this.items,2,{message : 'hahaha'})
+                },
+                addLength : function(){
+                    vm.items.splice(4,2,{message:'bbb'})
+                },
+                addUserProfile : function(){
+                    vm.userProfile = Object.assign({},vm.userProfile,{
+                        favouriteColor : 'red',
+                        favouriteFood : 'apple',
+                    })
+                },
+                addNewTodo : function(){
+                    this.todos.push({
+                        id : this.newTodoId++,
+                        title : this.newTodoText = this.newTodoText === '' ? 'Nothing' : this.newTodoText
+                    })
+                    this.newTodoText = ''
+                }
+            },
+            computed : {
+                evenNumbers : function(){
+                    return this.number.filter(function(number){
+                        return number % 2 === 0
+                    })
+                }
+            }
+        })
+        
+    </script>
+</body>
+</html>

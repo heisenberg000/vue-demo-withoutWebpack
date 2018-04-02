@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <script src="https://cdn.jsdelivr.net/npm/vue"></script>
+    <title>模板语法</title>
+</head>
+<body>
+    <div id="app">
+        <span v-once>这个值不会改变 {{ msg }}</span>
+        <p>Using mustaches: {{ rawHtml }}</p>
+        <p>Using v-html direactive: <span v-html="rawHtml"></span></p>
+        <button v-bind:disabled="isbuttonDisabled">Button</button><br/>
+        <span>{{ number + 1 }}</span>
+        <div v-bind:id="'list-' + id">
+            <p v-if="seen">现在你看到我了</p>
+            <a :href="url">我绑定了网页</a>
+            <button @click="doS">点我试试</button>
+        </div>
+    </div>
+    <script>
+        var app = new Vue({
+            el : '#app',
+            data : {
+                rawHtml : '<span style="color:red">This should be red</span>',
+                msg : 'v-once Msg,can\'t be changed',
+                isbuttonDisabled : true,
+                number : 2,
+                id : 9,
+                seen : true,
+                url : 'https://www.baidu.com',
+            },
+            methods : {
+                doS : function(){
+                    alert("点的好");
+                }
+            }
+        })
+    </script>
+</body>
+</html>

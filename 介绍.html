@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <script src="https://cdn.jsdelivr.net/npm/vue"></script>
+    <title>介绍页</title>
+</head>
+<body>
+    <div id="mycomponent">
+        <ol>
+            <!--使用时需要为组件提供一个key值-->
+            <todo-item
+                v-bind:todo="item"
+                v-for="item in myList"
+                v-bind:key="item.id"
+            >
+            </todo-item>
+        </ol>
+    </div>
+    <script>
+        // 构建组件,创建todo属性
+        Vue.component('todo-item',{
+            props : ['todo'],
+            template : '<li>{{ todo.text }}</li>'
+        })
+        var mycomponent = new Vue({
+            el : '#mycomponent',
+            data : {
+                myList : [
+                    {id : 0,text : 'a'},
+                    {id : 1,text : 'b'},
+                    {id : 2,text : 'c'}
+                ]
+            }
+        })
+    </script>
+</body>
+</html>

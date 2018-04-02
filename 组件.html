@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <script src="https://cdn.jsdelivr.net/npm/vue"></script>
+    <title>组件</title>
+</head>
+<body>
+    <div id="app">
+        <my-component></my-component>
+        <my-child-component my-message="hello"></my-child-component>
+        <div>
+            <input v-model="parentMessage" placeholder="Type sth.">
+            <br>
+            <my-child-component v-bind:my-message="parentMessage"></my-child-component>
+        </div>
+        <div>
+            <!-- 绑定一个对象 -->
+            <todo-item v-bind="todo"></todo-item>
+        </div>
+    </div>
+    <script>
+       // 局部声明，在vue实例里面注册
+       var child = {
+           props : ['myMessage'],
+           template : '<span>{{ myMessage }}</span>'
+       }
+       var todoitem = {
+           props : ['text','isComplete'],
+           template : '<span>{{ text }} is {{ isComplete }}</span>'
+       }
+       var validateItem = {
+           props : {
+                // 基础类型检测 (`null` 指允许任何类型)
+                propA: Number,
+                // 可能是多种类型
+                propB: [String, Number],
+                // 必传且是字符串
+                propC: {
+                    type: String,
+                    required: true
+                },
+                // 数值且有默认值
+                propD: {
+                    type: Number,
+                    default: 100
+                },
+                // 数组/对象的默认值应当由一个工厂函数返回
+                propE: {
+                    type: Object,
+                    default: function () {
+                        return { message: 'hello' }
+                    }
+                },
+                // 自定义验证函数
+                propF: {
+                    validator: function (value) {
+                        return value > 10
+                    }
+                }
+            },
+           template : '<span>this is a validate element</span>',
+           data : function(){
+               return {
+
+               }
+           }
+       }
+       // 全局声明组件
+       Vue.component('my-component',{
+           template : '<div>A custom component</div>',
+       })
+       var vm = new Vue({
+           el : '#app',
+           components : {
+               'my-child-component' : child,
+               'todo-item' : todoitem,
+           },
+           data : function(){
+               return {
+                   parentMessage : '',
+                   todo : {
+                       text : 'HomeWork',
+                       isComplete : false
+                   }
+               }
+           }
+       })
+    </script>
+</body>
+</html>

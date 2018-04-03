@@ -20,8 +20,89 @@
             <!-- 绑定一个对象 -->
             <todo-item v-bind="todo"></todo-item>
         </div>
+        <!-- 父子组件解耦 -->
+        <div>
+            <p>{{ total }}</p>
+            <button-counter v-on:increment="incrementTotal"></button-counter>
+            <button-counter v-on:increment="incrementTotal"></button-counter>
+        </div>
+        <!-- 使用载荷数据 -->
+        <div>
+            <p v-for="msg in messages">{{ msg }}</p>
+            <button-message @message="handleMessage"></button-message>
+        </div>
+        <div>
+            <currency-input v-model="price"></currency-input>
+        </div>
+        <!-- 单个插槽例子 -->
+        <div>
+            <h1>我是父组件的标题</h1>
+            <my-slot-component>
+                <p>这是一些初始内容</p>
+                <p>这是更多的初始内容</p>
+            </my-slot-component>
+        </div>
+        <!-- 具名插槽、匿名插槽例子 -->
+        <div>
+            <app-layout>
+                <h1 slot="header">这里可能是一个页面标题</h1>
+                <p>主要内容的一个段落。</p>
+                <p>另一个主要段落。</p>
+                <p slot="footer">这里有一些联系信息</p>
+            </app-layout>
+        </div>
+        <!-- slot-scope例子 -->
+        <div>
+            <list-component :items="items">
+                <li slot="it" slot-scope="props">
+                    {{ props.text }} - {{ props.item.id }} 
+                </li>
+            </list-component>
+        </div>
     </div>
     <script>
+       var listComponent = {
+           // 传递了两个参数 text和item
+           template : `<ul><slot name="it" v-for="item in items" :text="item.text" :item="item"></slot></ul>`,
+           props : ['items'],
+       }
+       var appLayout = {
+           template : `<div class="container">
+                        <header>
+                            <slot name="header"></slot>
+                        </header>
+                        <main>
+                            <slot></slot>
+                        </main>
+                        <footer>
+                            <slot name="footer"></slot>
+                        </footer>
+                        </div>`
+       }
+       var mySlotComponent = {
+           template : `<div>
+                          <h2>我是子组件的标题</h2>
+                          <slot>
+                             只有在没有要分发的内容时才会显示。
+                          </slot>
+                        </div>`
+       }
+       var currencyInput = {
+           template : `<span>
+                        $<input ref="input" v-bind:value="value" v-on:input="updateValue($event.target.value)">
+                       </span>`,
+           props : ['value'],
+           methods : {
+               updateValue : function(value){
+                 var formattedValue = value.trim().slice(0,value.indexOf('.') === -1 ? value.length : value.indexOf('.') + 3)
+                 if (formattedValue !== value) {
+                    this.$refs.input.value = formattedValue
+                 }
+                // 通过触发父组件 input 事件带出数值
+                this.$emit('input', Number(formattedValue))
+               }
+           }
+       }
        // 局部声明，在vue实例里面注册
        var child = {
            props : ['myMessage'],
@@ -30,6 +111,40 @@
        var todoitem = {
            props : ['text','isComplete'],
            template : '<span>{{ text }} is {{ isComplete }}</span>'
+       }
+       var buttonCounter = {
+            template : '<button v-on:click="incrementCounter">{{ counter }}</button>',
+            data () {
+                return {
+                    counter : 0,
+                }
+            },
+            methods : {
+                incrementCounter : function(){
+                    this.counter += 1
+                    this.$emit('increment')
+                }
+            }
+       }
+       var buttonMessage = {
+           template : 
+           `<div>
+           <input type="text" v-model="message.text">
+           <button v-on:click="handleSendMessage">send</button>
+           </div>
+           `,
+           data () {
+               return {
+                   message : { text : 'test message' ,id : 1},
+               }
+           },
+           methods : {
+               handleSendMessage : function(){
+                   // 调用父组件的message方法，传递参数
+                   this.$emit('message',{message : this.message})
+               }
+           }
+
        }
        var validateItem = {
            props : {
@@ -74,18 +189,43 @@
        })
        var vm = new Vue({
            el : '#app',
+           // 注册局部组件
            components : {
                'my-child-component' : child,
                'todo-item' : todoitem,
+               'button-counter' : buttonCounter,
+               'button-message' : buttonMessage,
+               'currency-input' : currencyInput,
+               'my-slot-component' : mySlotComponent,
+               'app-layout' : appLayout,
+               'list-component' : listComponent,
            },
            data : function(){
                return {
                    parentMessage : '',
                    todo : {
                        text : 'HomeWork',
-                       isComplete : false
-                   }
+                       isComplete : false,
+                   },
+                   total : 0,
+                   messages : [],
+                   price : 0,
+                   items : [
+                       { text : 'AAA', id : 1},
+                       { text : 'BBB', id : 2},
+                       { text : 'CCC', id : 3},
+                       { text : 'DDD', id : 4},
+                   ]
                }
+           },
+           methods : {
+                incrementTotal : function(){
+                    this.total += 1
+                },
+                handleMessage : function(payload){
+                    // payload 为载荷参数，获取到message对象
+                    this.messages.push(payload.message.text)
+                },
            }
        })
     </script>
